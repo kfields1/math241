@@ -1,6 +1,6 @@
 ---
 title: "Lab 2"
-#author: "Insert Name"
+author: "Kiana Fields"
 date: "Math 241, Week 2"
 output:
   pdf_document
@@ -55,6 +55,21 @@ The dataset can be found in the `dsbox` package, and is called `accidents`. It c
 ```{r, out.width="100%", echo=FALSE}
 knitr::include_graphics("../img/edi-accidents-1.png")
 ```
+```{r}
+data(accidents)
+
+accidents <- accidents %>% 
+  mutate(daytype = case_when(day_of_week == "Monday" | day_of_week == "Tuesday"| day_of_week == "Wednesday"| day_of_week == "Thursday"| day_of_week == "Friday" ~ "Weekday", day_of_week == "Saturday"| day_of_week == "Sunday" ~ "Weekend"))
+
+
+ggplot(data = accidents, aes(x = time)) +
+  geom_density(aes(fill=severity),alpha=.8) +
+  facet_grid(daytype ~.) +
+  scale_fill_manual(breaks = c("Fatal", "Serious", "Slight"), 
+                    values=c("#9B7DA1", "#80C1BD", "#FFF27E"))+
+  labs(x="Time of Day", y="Density", fill = "Severity", title = "Number of accidents throughout the day", subtitle = "By day of week and severity")
+
+```
 
 
 ### Problem 2: One Dataset, Visualized ~~25~~ 5 Ways
@@ -62,6 +77,7 @@ knitr::include_graphics("../img/edi-accidents-1.png")
 Inspired by Nathan Yau's [One Dataset, Visualized 25 Ways](https://flowingdata.com/2017/01/24/one-dataset-visualized-25-ways/), I want you to create 5 visualizations of the same data. You can use the `mpg` dataset or another dataset of your choosing, including the `accidents` dataset above. Make sure you have the data manual open for this problem!  
 
 a. Pick 3 - 4 variables you want to explore.  Provide their code names here.
+road_type, vehicles, severity, speed_limit
 
 b. Create 5 graphs.  A few things to consider:
     + Like Nathan's graphs, they don't all have to contain every one of your selected variables.
@@ -70,6 +86,34 @@ b. Create 5 graphs.  A few things to consider:
     + Feel free to subset or wrangling the dataset if you want to but it isn't required.
 
 c. Discuss the pros/cons of your graphs.  What useful information can be gleaned?  How do the different geoms and aesthetics impact the story?
+
+```{r}
+ggplot(data = accidents, aes(x = time)) +
+  geom_density(aes(fill=severity),alpha=.8) +
+  facet_grid(daytype ~.) +
+  scale_fill_manual(breaks = c("Fatal", "Serious", "Slight"), 
+                    values=c("#9B7DA1", "#80C1BD", "#FFF27E"))+
+  labs(x="Time of Day", y="Density", fill = "Severity", title = "Number of accidents throughout the day", subtitle = "By day of week and severity")
+
+ggplot(data=accidents, aes(x=time, y = vehicles)) + 
+  geom_point(aes(col=road_type, size=severity)) 
+
+
+
+
++ 
+  geom_smooth(method="loess", se=F) + 
+  xlim(c(0, 0.1)) + 
+  ylim(c(0, 500000)) + 
+  labs(subtitle="Area Vs Population", 
+       y="Population", 
+       x="Area", 
+       title="Scatterplot", 
+       caption = "Source: midwest")
+
+
+```
+
 
 
 ### Problem 3: Style This Code!
