@@ -95,15 +95,23 @@ mpg <- mpg %>%
 #boxplot of highway mpg by manufacturer
 ggplot(data = mpg, aes(x = reorder(manufacturer, hwy, FUN = median), y = hwy)) +
   geom_boxplot(fill = "plum") +
-  labs(x="Manufacturer", y = "Highway MPG", title = "Boxplot of Highway MPG by Manufacurer's in 2008 and 1999") +
+  labs(x="Manufacturer", y = "Highway MPG", title = "Boxplot of Highway MPG by Manufacurer's") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
 
+This graph is useful in comparing the different manufacturers. The boxplots also point to the ranges in highway mpg across their cars however, it doesn't explain why this is the case (different classes of vehicles etc). Ordering it from lowest to highest median made it more legible than shuffled around and allows ranking of manufacturers in a clear way.
+
+```{r}
 #histogram of num cars from each manufacturer colored by class
 ggplot(data = mpg, aes(x = manufacturer, fill = class)) +
   geom_histogram(stat = "count",binwidth = 1) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  #rotate
   labs(x="Manufacturer", y="Cars Count", color = "Vehicle Class", title = "Histogram of Vehicle Class and Number of Cars produced by Manufacturers")
+```
 
+This graph effectively contextualize the ranking of the earlier graph by showing the differences in composition of the manufacturers. Some manufacturers don't make all the different classes of cars which would impact average mpg. The histogram is good for showing counts but the fill=class changes the story, and provides this necessary context. 
+
+```{r}
 #barplot of average highway mpg across manufacturer
 mpg_avg <- mpg %>%
   group_by(manufacturer) %>%
@@ -113,15 +121,33 @@ ggplot(data = mpg_avg, aes(x = reorder(manufacturer, avg_mpg), y = avg_mpg)) +
   geom_bar(stat = "identity", width = 0.5, fill = "plum") +
   labs(x = "Manufacturer", y = "Average Highway MPG", title = "Average Highway MPG across Manufacturers") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  #rotate
+```
 
+This graph is similar to the first one, a boxplot version of this same story/information. Changing the geom to a bar plot serves to simplify this information. While it's less informative/detailed, it is more legible for general viewers.
+
+```{r}
 #boxplot of highway mpg across class
 ggplot(data =mpg, aes(x=class, y=hwy)) +
   geom_boxplot(fill="plum") + 
     labs(title="Highway MPG by Class of Vehicle", x="Vehicle Class", y="Highway MPG")
+```
+
+This graph adds more context to prior graphs showing the general trends in highway mpg by vehicle class. Considering this graph along with the histogram of #of cars produced by each manufacturer and their breakdown by class, indicates that it's not quite fair to compare the general averages when manufacturer's don't produce the same kinds or quantities of vehicle which are inherantly different. 
+
+```{r}
+# Calculate average highway MPG for each manufacturer in each year (connected points plot)
+mpg_avgman <- mpg %>%
+  group_by(manufacturer, chryear) %>%
+  summarize(avg_hwy = mean(hwy, na.rm = TRUE)) %>%
+  ungroup()
+ggplot(data = mpg_avgman, aes(x = as.factor(chryear), y = avg_hwy, group = manufacturer, color = manufacturer)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Year", y = "Average Hwy MPG", title = "Average Hwy MPG by Manufacturer and Year")
 
 ```
 
-
+This graph has similar cons as the others in the lack of context associated with 'average highway mpg' as a variable. However, this graph is useful in showing the trends over time and improvement within manufacturers. 
 
 ### Problem 3: Style This Code!
 
