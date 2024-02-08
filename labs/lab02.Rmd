@@ -63,7 +63,7 @@ accidents <- accidents %>%
 
 
 ggplot(data = accidents, aes(x = time)) +
-  geom_density(aes(fill=severity),alpha=.8) +
+  geom_density(aes(fill=severity),alpha=.5) +
   facet_grid(daytype ~.) +
   scale_fill_manual(breaks = c("Fatal", "Serious", "Slight"), 
                     values=c("#9B7DA1", "#80C1BD", "#FFF27E"))+
@@ -77,7 +77,7 @@ ggplot(data = accidents, aes(x = time)) +
 Inspired by Nathan Yau's [One Dataset, Visualized 25 Ways](https://flowingdata.com/2017/01/24/one-dataset-visualized-25-ways/), I want you to create 5 visualizations of the same data. You can use the `mpg` dataset or another dataset of your choosing, including the `accidents` dataset above. Make sure you have the data manual open for this problem!  
 
 a. Pick 3 - 4 variables you want to explore.  Provide their code names here.
-road_type, vehicles, severity, speed_limit
+class, hwy, year
 
 b. Create 5 graphs.  A few things to consider:
     + Like Nathan's graphs, they don't all have to contain every one of your selected variables.
@@ -88,29 +88,36 @@ b. Create 5 graphs.  A few things to consider:
 c. Discuss the pros/cons of your graphs.  What useful information can be gleaned?  How do the different geoms and aesthetics impact the story?
 
 ```{r}
-ggplot(data = accidents, aes(x = time)) +
-  geom_density(aes(fill=severity),alpha=.8) +
-  facet_grid(daytype ~.) +
-  scale_fill_manual(breaks = c("Fatal", "Serious", "Slight"), 
-                    values=c("#9B7DA1", "#80C1BD", "#FFF27E"))+
-  labs(x="Time of Day", y="Density", fill = "Severity", title = "Number of accidents throughout the day", subtitle = "By day of week and severity")
+data(mpg)
+mpg <- mpg %>% 
+  mutate(chryear = case_when(year == 2008 ~ as.character("2008"), year == 1999 ~ as.character("1999")))
 
-ggplot(data=accidents, aes(x=time, y = vehicles)) + 
-  geom_point(aes(col=road_type, size=severity)) 
+#boxplot of highway mpg by manufacturer
+ggplot(data = mpg, aes(x = reorder(manufacturer, hwy, FUN = median), y = hwy)) +
+  geom_boxplot(fill = "plum") +
+  labs(x="Manufacturer", y = "Highway MPG", title = "Boxplot of Highway MPG by Manufacurer's in 2008 and 1999") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
+#histogram of num cars from each manufacturer colored by class
+ggplot(data = mpg, aes(x = manufacturer, fill = class)) +
+  geom_histogram(stat = "count",binwidth = 1) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  #rotate
+  labs(x="Manufacturer", y="Cars Count", color = "Vehicle Class", title = "Histogram of Vehicle Class and Number of Cars produced by Manufacturers")
 
+#barplot of average highway mpg across manufacturer
+mpg_avg <- mpg %>%
+  group_by(manufacturer) %>%
+  summarize(avg_mpg = mean(hwy, na.rm = TRUE)) %>%
+  arrange(desc(avg_mpg)) 
+ggplot(data = mpg_avg, aes(x = reorder(manufacturer, avg_mpg), y = avg_mpg)) +
+  geom_bar(stat = "identity", width = 0.5, fill = "plum") +
+  labs(x = "Manufacturer", y = "Average Highway MPG", title = "Average Highway MPG across Manufacturers") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  #rotate
 
-
-+ 
-  geom_smooth(method="loess", se=F) + 
-  xlim(c(0, 0.1)) + 
-  ylim(c(0, 500000)) + 
-  labs(subtitle="Area Vs Population", 
-       y="Population", 
-       x="Area", 
-       title="Scatterplot", 
-       caption = "Source: midwest")
-
+#boxplot of highway mpg across class
+ggplot(data =mpg, aes(x=class, y=hwy)) +
+  geom_boxplot(fill="plum") + 
+    labs(title="Highway MPG by Class of Vehicle", x="Vehicle Class", y="Highway MPG")
 
 ```
 
