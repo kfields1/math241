@@ -40,9 +40,27 @@ Write a function called `count_name` that, when given a name as an argument, ret
 
 ```{r, eval= FALSE}
 data(babynames) # this will explicitly ask R to load the babynames dataset to your environment
-count_name <- function(name){
+babynames <- babynames
+
+count_name <- function(input){
+  if(!is.character(input)) {
+    stop('Unfortunately this function only works for character inputs.\n',
+         'You have provided an object of class:', class(input))
+    }
   
+  result <- babynames %>%
+    filter(name == input) %>%
+    group_by(year) %>%
+    summarize(count = n())
+  
+  if (nrow(result) == 0) {
+    stop('Unfortunately there are no matches')
+  }
+  
+  return(data.frame(result))
 }
+
+count_name(input = "Ezekiel")
 ```
 
 
