@@ -279,7 +279,7 @@ The data for this exercise comes from `TidyTuesday`, and is on rental prices in 
 Limit your analysis to rentals where the full unit is available, i.e. (`room_in_apt	== 0`). You have the flexibility to choose which years and which neighborhoods. Note that you should have a maximum of 8 neighborhoods on your visualization, but one or more of them can be a combination of many (e.g., an "other" category). Your visualization should also display some measure of the variability in your data.
 You get to decide what type of visualization to create and there is more than one correct answer! In your answer, include a brief description of why you made the choices you made as well as an interpretation of the findings of how rental prices vary over time and neighborhoods in San Francisco.
 
-```{r, eval = F}
+```{r}
 # Get the Data
 # Read in with tidytuesdayR package
 # Install from CRAN via: install.packages("tidytuesdayR")
@@ -287,7 +287,9 @@ You get to decide what type of visualization to create and there is more than on
 library(tidytuesdayR)
 tuesdata <- tidytuesdayR::tt_load('2022-07-05') # this could take a minute
 rent <- tuesdata$rent
+```
 
+```{r}
 sfrent <- rent %>% 
   filter(room_in_apt == 0,
          city == "san francisco") %>% 
@@ -297,9 +299,6 @@ sfrent <- rent %>%
            nhood == "portola" |
            nhood == "haight ashbury" |
            nhood == "tenderloin")
-
-sfrent <- sfrent[!is.na(sfrent[, beds]), ]
-
 
 #just disgusting ... but compares distributions
 ggplot(sfrent, aes(x = factor(year), y = price, fill = factor(beds))) +
@@ -314,7 +313,7 @@ ggplot(sfrent, aes(x = factor(year), y = price, fill = factor(beds))) +
 I chose to use boxplots to compare distributions of prices per bedroom over time and faceted by neighborhood to compare these different locations. It's not the prettiest graph, but you are able to see trends within neighborhoods, for example rent is generally increasing in the mission district and the castro, but has stayed fairly consistent in the tenderloin. 
 
 
-```{r, eval = F}
+```{r}
 #little less information but viewable
 avrg_sfrent <- sfrent %>%
   group_by(year, nhood, beds) %>%
