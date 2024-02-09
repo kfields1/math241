@@ -290,11 +290,46 @@ rent <- tuesdata$rent
 
 sfrent <- rent %>% 
   filter(room_in_apt == 0,
-         city == "san francisco")
+         city == "san francisco") %>% 
+  filter(nhood == "castro" | 
+           nhood == "downtown" |
+           nhood == "mission district" |
+           nhood == "portola" |
+           nhood == "haight ashbury" |
+           nhood == "tenderloin")
 
-ggplot(data=sfrent, aes(x=year, y = price, color =beds)) +
-  geom_line()
+sfrent <- sfrent[!is.na(sfrent[, beds]), ]
 
 
+#just disgusting ... but compares distributions
+ggplot(sfrent, aes(x = factor(year), y = price, fill = factor(beds))) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +  # Remove outliers for better visualization
+  labs(title = "Distribution of rent per number of bedrooms across SF from 2000-2018",
+       x = "Year", y = "Price per Bedroom", fill = "Number of Bedrooms") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(nhood ~.)
 ```
 
+I chose to use boxplots to compare distributions of prices per bedroom over time and faceted by neighborhood to compare these different locations. It's not the prettiest graph, but you are able to see trends within neighborhoods, for example rent is generally increasing in the mission district and the castro, but has stayed fairly consistent in the tenderloin. 
+
+
+```{r, eval = F}
+#little less information but viewable
+avrg_sfrent <- sfrent %>%
+  group_by(year, nhood, beds) %>%
+  summarize(avg_price = mean(price, na.rm = TRUE)) %>%
+  ungroup()
+avrg_sfrent <- na.omit(avrg_sfrent)
+
+ggplot(avrg_sfrent, aes(x = year, y = avg_price, color = factor(beds))) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Average rent per number of bedrooms across SF from 2000-2018",
+       x = "Year",
+       y = "Average Rent", 
+       color = "Number of Bedrooms") +
+  theme_minimal() +
+  facet_wrap(nhood ~.)
+```
+I also considered the data using the line and point geoms, for legibility. This compares just mean rather than distribution with variability (unlike the earlier boxplots). This graph supports the trends evident in the earlier plot but also reveals that not all home sizes (as defined by number of bedrooms) are present across neighborhoods. For example, there was only one year with 8 bedroom places to rent in the mission district. Perhaps a prettier graph could be created by omitting some of the more unique home sizes.
