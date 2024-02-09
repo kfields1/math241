@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ```{r libraries, message = FALSE}
 # it's good practice to check that all the packages required are loaded and installed
-libs <- c('tidyverse','knitr','viridis','mdsr', 'macleish','babynames')
+libs <- c('tidyverse','knitr','viridis','mdsr', 'mosaicData', 'macleish','babynames')
 for(l in libs){
   if(!require(l,character.only = TRUE, quietly = TRUE)){
     message( sprintf('Did not have the required package << %s >> installed. Downloading now ... ',l))

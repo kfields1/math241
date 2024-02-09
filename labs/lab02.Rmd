@@ -281,22 +281,19 @@ You get to decide what type of visualization to create and there is more than on
 
 ```{r, eval = F}
 # Get the Data
-
-# Read in with tidytuesdayR package 
-# Install from CRAN via: 
-#install.packages("tidytuesdayR")
+# Read in with tidytuesdayR package
+# Install from CRAN via: install.packages("tidytuesdayR")
 # This loads the readme and all the datasets for the week of interest
+library(tidytuesdayR)
+tuesdata <- tidytuesdayR::tt_load('2022-07-05') # this could take a minute
+rent <- tuesdata$rent
 
-#library(tidytuesdayR)
-#tuesdata <- tidytuesdayR::tt_load('2022-07-05') # this could take a minute
+sfrent <- rent %>% 
+  filter(room_in_apt == 0,
+         city == "san francisco")
 
-#rent <- tuesdata$rent
-
-rent <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-05/rent.csv')
-permits <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-05/sf_permits.csv')
-new_construction <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-05/new_construction.csv')
-
-
+ggplot(data=sfrent, aes(x=year, y = price, color =beds)) +
+  geom_line()
 
 
 ```
