@@ -59,7 +59,13 @@ knitr::include_graphics("../img/edi-accidents-1.png")
 data(accidents)
 
 accidents <- accidents %>% 
-  mutate(daytype = case_when(day_of_week == "Monday" | day_of_week == "Tuesday"| day_of_week == "Wednesday"| day_of_week == "Thursday"| day_of_week == "Friday" ~ "Weekday", day_of_week == "Saturday"| day_of_week == "Sunday" ~ "Weekend"))
+  mutate(daytype = case_when(day_of_week == "Monday" | 
+                               day_of_week == "Tuesday"| 
+                               day_of_week == "Wednesday"| 
+                               day_of_week == "Thursday"| 
+                               day_of_week == "Friday" ~ "Weekday", 
+                             day_of_week == "Saturday"| 
+                               day_of_week == "Sunday" ~ "Weekend"))
 
 
 ggplot(data = accidents, aes(x = time)) +
@@ -67,7 +73,11 @@ ggplot(data = accidents, aes(x = time)) +
   facet_grid(daytype ~.) +
   scale_fill_manual(breaks = c("Fatal", "Serious", "Slight"), 
                     values=c("#9B7DA1", "#80C1BD", "#FFF27E"))+
-  labs(x="Time of Day", y="Density", fill = "Severity", title = "Number of accidents throughout the day", subtitle = "By day of week and severity")
+  labs(x="Time of Day", 
+       y="Density", 
+       fill = "Severity", 
+       title = "Number of accidents throughout the day", 
+       subtitle = "By day of week and severity")
 
 ```
 
@@ -90,12 +100,15 @@ c. Discuss the pros/cons of your graphs.  What useful information can be gleaned
 ```{r}
 data(mpg)
 mpg <- mpg %>% 
-  mutate(chryear = case_when(year == 2008 ~ as.character("2008"), year == 1999 ~ as.character("1999")))
+  mutate(chryear = case_when(year == 2008 ~ as.character("2008"), 
+                             year == 1999 ~ as.character("1999")))
 
 #boxplot of highway mpg by manufacturer
 ggplot(data = mpg, aes(x = reorder(manufacturer, hwy, FUN = median), y = hwy)) +
   geom_boxplot(fill = "plum") +
-  labs(x="Manufacturer", y = "Highway MPG", title = "Boxplot of Highway MPG by Manufacurer's") +
+  labs(x="Manufacturer", 
+       y = "Highway MPG", 
+       title = "Boxplot of Highway MPG by Manufacurer's") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
@@ -106,7 +119,10 @@ This graph is useful in comparing the different manufacturers. The boxplots also
 ggplot(data = mpg, aes(x = manufacturer, fill = class)) +
   geom_histogram(stat = "count",binwidth = 1) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  #rotate
-  labs(x="Manufacturer", y="Cars Count", color = "Vehicle Class", title = "Histogram of Vehicle Class and Number of Cars produced by Manufacturers")
+  labs(x="Manufacturer", 
+       y="Cars Count", 
+       color = "Vehicle Class", 
+       title = "Histogram of Vehicle Class and Number of Cars produced by Manufacturers")
 ```
 
 This graph effectively contextualize the ranking of the earlier graph by showing the differences in composition of the manufacturers. Some manufacturers don't make all the different classes of cars which would impact average mpg. The histogram is good for showing counts but the fill=class changes the story, and provides this necessary context. 
@@ -119,7 +135,9 @@ mpg_avg <- mpg %>%
   arrange(desc(avg_mpg)) 
 ggplot(data = mpg_avg, aes(x = reorder(manufacturer, avg_mpg), y = avg_mpg)) +
   geom_bar(stat = "identity", width = 0.5, fill = "plum") +
-  labs(x = "Manufacturer", y = "Average Highway MPG", title = "Average Highway MPG across Manufacturers") +
+  labs(x = "Manufacturer", 
+       y = "Average Highway MPG", 
+       title = "Average Highway MPG across Manufacturers") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  #rotate
 ```
 
@@ -129,7 +147,9 @@ This graph is similar to the first one, a boxplot version of this same story/inf
 #boxplot of highway mpg across class
 ggplot(data =mpg, aes(x=class, y=hwy)) +
   geom_boxplot(fill="plum") + 
-    labs(title="Highway MPG by Class of Vehicle", x="Vehicle Class", y="Highway MPG")
+    labs(title="Highway MPG by Class of Vehicle", 
+         x="Vehicle Class", 
+         y="Highway MPG")
 ```
 
 This graph adds more context to prior graphs showing the general trends in highway mpg by vehicle class. Considering this graph along with the histogram of #of cars produced by each manufacturer and their breakdown by class, indicates that it's not quite fair to compare the general averages when manufacturer's don't produce the same kinds or quantities of vehicle which are inherantly different. 
@@ -140,10 +160,15 @@ mpg_avgman <- mpg %>%
   group_by(manufacturer, chryear) %>%
   summarize(avg_hwy = mean(hwy, na.rm = TRUE)) %>%
   ungroup()
-ggplot(data = mpg_avgman, aes(x = as.factor(chryear), y = avg_hwy, group = manufacturer, color = manufacturer)) +
+
+ggplot(data = mpg_avgman, aes(x = as.factor(chryear), 
+                              y = avg_hwy, group = manufacturer, 
+                              color = manufacturer)) +
   geom_line() +
   geom_point() +
-  labs(x = "Year", y = "Average Hwy MPG", title = "Average Hwy MPG by Manufacturer and Year")
+  labs(x = "Year", 
+       y = "Average Hwy MPG", 
+       title = "Average Hwy MPG by Manufacturer and Year")
 
 ```
 
@@ -154,13 +179,20 @@ This graph has similar cons as the others in the lack of context associated with
 Take the following code and don't change its functionality but DO change its style.  Use the [Tidyverse Style Guide](https://style.tidyverse.org/)!
 
 ```{r}
-thing.132232=data.frame(theanimalsweightisthisnumber=c(runif(3),NA),y=c("cat","mouse","dog","rat"))
-median(thing.132232$theanimalsweightisthisnumber, TRUE);mean(thing.132232$theanimalsweightisthisnumber, 0 , TRUE); var(thing.132232$theanimalsweightisthisnumber, NULL, TRUE)
+animal_weight = data.frame(weight = c(runif(3),NA),
+                           animal = c("cat","mouse","dog","rat"))
 
+median(animal_weight$weight, TRUE);
+mean(animal_weight$weight, 0 , TRUE); 
+var(animal_weight$weight, NULL, TRUE)
 
-ggplot(thing.132232, aes(y=theanimalsweightisthisnumber,x=y))+geom_col()+scale_y_continuous()
+ggplot(animal_weight, aes(y = weight, x = animal)) +
+  geom_col(fill="plum") +
+  scale_y_continuous() +
+  labs(x="Animal Species", 
+       y = "Weight (ibs)", 
+       title = "Average Weight Across Animal Species")
 ```
-
 
 
 ### Problem 4: Imitation is the Sincerest Form of Flattery
@@ -170,16 +202,75 @@ For this problem, I want you to try to recreate a FiveThirtyEight.com graphic.  
 a. Take a screenshot of the graph, upload it to the same folder on the server where you have saved your lab, and insert the file name below.  Then change the `eval = FALSE` to `eval = TRUE`.
 
 
-```{r, out.width="100%", echo=FALSE, eval = FALSE}
+```{r, out.width="100%", echo=FALSE, eval = TRUE}
 knitr::include_graphics("../img/538_graph.png")
 ```
 
 
 b. Load the data and recreate the graph as best as you can.  
+```{r}
+data_aging_congress <- read_csv("~/Rstudio/DataScience/math241repo/data/data_aging_congress.csv")
+
+#data wrangling: df w start_year, chamber, age
+data_aging_congress$start_year <- year(data_aging_congress$start_date)
+
+aging_avrg <- data_aging_congress %>%
+  group_by(start_year, chamber) %>%
+  summarize(avg_age = median(age_years, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(aging_avrg, aes(x=start_year, y=avg_age)) +
+  geom_step(aes(color=chamber)) +
+  scale_color_manual(breaks = c("Senate", "House"),
+                     values=c("#024F7E", "#6ECC75"))+
+  xlim(1920,2020)+
+  ylim(45,65) +
+  labs(x="", 
+       y="",
+       color="",
+       title="The House and Senate are older than ever before",
+       subtitle="Median age of the U.S. Senate and U.S House by Congress, 1919 to 2023", 
+       caption="Data is based on all members who served in either the Senate or House in each Congress, which is notated by the year in which it was seated. Any member who served in both chambers in the same Congress was assigned to the chamber in which they cast more votes.") +
+  theme(plot.title=element_text(face="bold"))+
+  geom_text(x=2022.5, y=63.5, label = "65.3", size = 3) +
+  geom_text(x=2022.5, y=57.8, label = "57.8", size = 3)
+
+```
 
 c. Now make the graph better somehow.
 
+```{r}
+# data wrangling, adding  parties + remove nas
+data_aging_congress <- data_aging_congress %>% 
+  mutate(party = case_when(party_code == 200 ~ "Republican", party_code == 100 ~ "Democrat"))
+
+party_avrg <- data_aging_congress %>%
+  group_by(start_year, chamber, party) %>%
+  summarize(avg_age = median(age_years, na.rm = TRUE)) %>%
+  ungroup()
+party_avrg <- na.omit(party_avrg)
+
+
+ggplot(party_avrg, aes(x=start_year, y=avg_age)) +
+  geom_step(aes(color= party)) +
+  scale_color_manual(breaks = c("Democrat", "Republican"),
+                     values=c("#024F7E", "maroon"))+
+  facet_grid(.~chamber) +
+  xlim(1920,2020)+
+  ylim(45,65) +
+  labs(x="", 
+       y="",
+       color="",
+       title="The House and Senate are older than ever before, across parties",
+       subtitle="Median age of the U.S. Senate and U.S House by Congress and by party, 1919 to 2023", 
+       caption="Data is based on all members who served in either the Senate or House in each Congress, which is notated by the year in which it was seated. Any member who served in both chambers in the same Congress was assigned to the chamber in which they cast more votes.") +
+  theme(plot.title=element_text(face="bold"))
+```
+
+
 d. Justify why your rendition of this `FiveThirtyEight.com` graph is more effective at telling the data story than the original. 
+
+My rendition confirms that this trend of increasing age is not associated with party affiliation. When I first saw 538's graph I wondered if there were other factors involved and my graph addresses a possible variable.
 
 ### Problem 5: Rental apartments in SF
 
@@ -192,13 +283,21 @@ You get to decide what type of visualization to create and there is more than on
 # Get the Data
 
 # Read in with tidytuesdayR package 
-# Install from CRAN via: install.packages("tidytuesdayR")
+# Install from CRAN via: 
+#install.packages("tidytuesdayR")
 # This loads the readme and all the datasets for the week of interest
 
-library(tidytuesdayR)
-tuesdata <- tidytuesdayR::tt_load('2022-07-05') # this could take a minute
+#library(tidytuesdayR)
+#tuesdata <- tidytuesdayR::tt_load('2022-07-05') # this could take a minute
 
-rent <- tuesdata$rent
+#rent <- tuesdata$rent
+
+rent <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-05/rent.csv')
+permits <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-05/sf_permits.csv')
+new_construction <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-05/new_construction.csv')
+
+
+
 
 ```
 

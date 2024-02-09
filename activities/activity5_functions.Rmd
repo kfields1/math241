@@ -1,6 +1,6 @@
 ---
 title: "R functions"
-#author: "Insert Name"
+author: "Kiana Fields"
 date: "Math 241, Week 3"
 output:
   pdf_document
@@ -41,7 +41,7 @@ Write a function called `count_name` that, when given a name as an argument, ret
 ```{r, eval= FALSE}
 data(babynames) # this will explicitly ask R to load the babynames dataset to your environment
 count_name <- function(name){
-  # your code here
+  
 }
 ```
 
