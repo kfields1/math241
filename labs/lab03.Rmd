@@ -60,6 +60,8 @@ ht <- head(pdxTrees$Tree_Height, n = 15)
 
 a. What are the classes of `dats`, `pdxTreesSmall` and `ht`?
 
+dats has a bunch of 'lists'. pdxTreesSmall
+
 b. Find the 10th, 11th, and 12th values of `ht`.
 
 c. Provide the `Species` column of `pdxTrees` as a data frame with one column.
