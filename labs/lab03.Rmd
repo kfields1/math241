@@ -60,15 +60,34 @@ ht <- head(pdxTrees$Tree_Height, n = 15)
 
 a. What are the classes of `dats`, `pdxTreesSmall` and `ht`?
 
-dats has a bunch of 'lists'. pdxTreesSmall
+dats os a list of data.frames and a tibble. pdxTreesSmall is a dataset. ht is a num value.
 
 b. Find the 10th, 11th, and 12th values of `ht`.
+```{r}
+view(ht)
+```
+
+The 10th value is 112, the 11th is 112, and the 12th is 48.
 
 c. Provide the `Species` column of `pdxTrees` as a data frame with one column.
+```{r}
+Species_df <- as.data.frame(pdxTrees$Species)
+```
+
 
 d. Provide the `Species` column of `pdxTrees` as a character vector.
 
+```{r}
+Species_df <- as.vector(pdxTrees$Species)
+
+```
+
 e. Provide code that gives us the second entry in `sets` from `dats`.
+
+```{r}
+
+```
+
 
 f. Subset `pdxTreesSmall` to only `Douglas-fir` and then provide the `DBH` and `Condition` of the 4th `Douglas-fir` in the dataset.  (Feel free to mix in some `tidyverse` code if you would like to.)
 
