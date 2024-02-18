@@ -85,13 +85,20 @@ Species_df <- as.vector(pdxTrees$Species)
 e. Provide code that gives us the second entry in `sets` from `dats`.
 
 ```{r}
-
+sets_2 <- dats$sets[[2]]
+print(sets_2)
 ```
 
 
 f. Subset `pdxTreesSmall` to only `Douglas-fir` and then provide the `DBH` and `Condition` of the 4th `Douglas-fir` in the dataset.  (Feel free to mix in some `tidyverse` code if you would like to.)
 
+```{r}
+dougfir_pdx <- pdxTreesSmall %>% 
+  filter(Common_Name == "Douglas-Fir")
 
+dougfir_4 <- dougfir_pdx[4, c("DBH", "Condition")]
+print(dougfir_4)
+```
 
 
 ### Problem 2: Function Creation
@@ -114,9 +121,41 @@ thing3 <- sd(pdxTrees$DBH)/sqrt(thing1)
 thing4 <- qt(p = .975, df = thing1 - 1)
 thing5 <- thing2 - thing4*thing3
 thing6 <- thing2 + thing4*thing3
+
+print(thing1)
 ```
 
+```{r}
+library(pdxTrees)
 
+calculateCI <- function(data, variable, conf_lvl) {
+  
+  if (is.null(data) || is.null(variable) || is.null(conf_lvl)) {
+    stop("Please specify a dataset, a variable, AND a confidence level")
+    }
+  
+  num_obs <- length(data[[variable]])
+  average <- mean(data[[variable]])
+  sd_se <- sd(data[[variable]])/sqrt(num_obs)
+  quartile <- qt(p=conf_lvl, df=num_obs - 1)
+  lower_ci <- average - quartile * sd_se
+  upper_ci <- average + quartile * sd_se
+  
+  result <- list(
+    num_obs = num_obs,
+    average = average,
+    sd_se = sd_se,
+    quartile = quartile,
+    lower_ci = lower_ci,
+    upper_ci = upper_ci
+  )
+  
+  return(result)
+}
+
+calculateCI(data = pdxTrees, variable = "DBH", conf_lvl = .975)
+
+```
 
 
 
@@ -149,14 +188,69 @@ a. Edit `histo()` so that the user can set
 * The fill color for the bars
 * The color outlining the bars
 
+```{r}
+# Shorthand histogram function
+histo <- function(data, x, bins, fill, color){
+   x <- enquo(x)
+  ggplot(data = data, mapping = aes(x = !!x)) +
+    geom_histogram(bins = bins, 
+                   color = color, 
+                   fill = fill)
+}
+
+# Test it
+histo(pdxTrees, DBH, 20, "#70CDF2", "#AB70F2")
+```
+
+
 b. Write code to create a basic scatterplot with `ggplot2`. Then write and test a function to create a basic scatterplot.
+
+```{r}
+ggplot(data = pdxTrees, aes(x = DBH, y = Tree_Height)) +
+  geom_point()
+
+scatter <- function(data, x, y){
+   x <- enquo(x)
+   y <- enquo(y)
+  ggplot(data = data, mapping = aes(x = !!x, y = !!y)) +
+    geom_point()
+}
+
+# Test it
+scatter(pdxTrees, DBH, Tree_Height)
+```
+
 
 c. Modify your scatterplot function to allow the user to ...
 
 * Color the points by another variable.
 * Set the transparency.
 
+```{r}
+scatter <- function(data, x, y, color, transparent){
+   x <- enquo(x)
+   y <- enquo(y) 
+  ggplot(data = data, mapping = aes(x = !!x, y = !!y)) +
+    geom_point(aes_string(color = color), alpha=transparent)
+}
+
+# Test it
+scatter(pdxTrees, DBH, Tree_Height, "Genus", 0.5)
+```
+
+
 d. Write and test a function for your favorite `ggplot2` graph.
+
+```{r}
+bars <- function(data, x, color){
+   x <- enquo(x)
+  ggplot(data = data, mapping = aes(x = !!x)) +
+    geom_bar(color = color)
+}
+
+# Test it
+bars(pdxTrees, Genus, "blue")
+```
 
 
 ### Problem 4: Functioning `dplyr`
@@ -170,21 +264,71 @@ pdxTrees %>%
   group_by(Native) %>%
   mutate(prop = n/sum(n)) %>%
   ungroup()
+
+cond_prop <- function(data, var_a, var_b){
+  var_a <- enquo(var_a)
+  var_b <- enquo(var_b)
+  result <- data %>% 
+    count(!!var_a, !!var_b) %>% 
+    group_by(!!var_a) %>% 
+    mutate(prop = n/sum(n)) %>% 
+    ungroup()
+  print(result)
+}
+  
+cond_prop(pdxTrees, Native, Condition)
 ```
 
 
 b.  Write a function to compute the mean, median, sd, min, max, sample size, and number of missing values of a quantitative variable by the categories of another variable.  Make sure the output is a data frame (or tibble).  Don't forget to test your function.
+```{r}
+calculation <- function(data, var_a, var_b) {
+  var_a <- enquo(var_a)
+  var_b <- enquo(var_b)
+  
+  result <- data %>%
+    group_by(!!var_a) %>%
+    summarise(
+      mean = mean(!!var_b, na.rm = TRUE),
+      median = median(!!var_b, na.rm = TRUE),
+      sd = sd(!!var_b, na.rm = TRUE),
+      min = min(!!var_b, na.rm = TRUE),
+      max = max(!!var_b, na.rm = TRUE),
+      n = n(),
+      n_missing = sum(is.na(!!var_b))
+    ) %>%
+    ungroup()
+  
+  print(result)
+}
+
+
+calculation(pdxTrees, Condition, DBH)
+```
+
 
 
 ### Problem 5: another `babynames` exercise
 
 Write a function called grab_name that, when given a **name** ***and a year*** as an argument, returns the rows from the `babynames` data frame in the `babynames` package that match that name for that year (and returns an error if that name and year combination does not match any rows). Run the function once with the arguments **Ezekiel and 1883** and once with **Ezekiel and 1983**.
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 #' Make sure to switch eval = FALSE to eval = TRUE before knitting!!
+library(babynames)
+data("babynames")
 
 grab_name <- function(myname, myyear) {
-  # Code your function here
+  result <- babynames %>% 
+    filter(name == myname & year == myyear)
+  
+  if(nrow(result) == 0) {
+    stop("No rows match that combination")
+  } else {
+    return(result)
+  }
 }
+
+grab_name("Ezekiel", 1883)
+grab_name("Ezekiel", 1983)
 
 ```
