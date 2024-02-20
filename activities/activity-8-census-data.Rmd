@@ -129,6 +129,15 @@ We can create new variables using the `mutate()` function. For example, you can 
 
 ```{r, eval = FALSE}
 
+or_county %>% 
+  mutate(prop_white = white_popE/total_popE *100) %>% 
+  st_as_sf() %>% 
+  ggplot() +
+    geom_sf(aes(fill = prop_white)) +
+    scale_fill_viridis_c() +
+    labs(fill = "Percentage of Population that is White") +
+    theme_void()
+  
 ```
 
 ## Census tracts
