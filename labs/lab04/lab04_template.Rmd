@@ -18,5 +18,107 @@ library(tidyverse)
 
 ### Problem 1: COVID survey - interpretation
 
+There are some statements that have general agreement across the board, most people seemed to agree that they would recommend the vaccine to others and are confident in the vetting process for new vaccines - except those who did not get the vaccine themselves. This feels intuitive. Indigenous people also appear more hesitant to trust the vaccines, which is also unsurprising given the historical context of the medical system's role in colonization. 
+Something surprising from this data is that even though people tend to lean towards trusting the vaccines, there is a lot more concern regarding the safety and side effects of the vaccine than expected. 
+I would be curious to learn more about the group that prefer not to say a gender identity as they also seemed particularly skeptical of the vaccine. 
 
 ### Problem 2: COVID survey - reconstruct
+
+```{r}
+
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(moderndive)
+
+#loading dataset
+covid_survey <- read_csv("~/Rstudio/DataScience/math241repo/labs/lab04/data/covid-survey.csv", skip = 1)
+
+#recoding
+covid_survey <- covid_survey %>% 
+  filter(if_any(-response_id, ~ !is.na(.))) %>% 
+  mutate(exp_already_vax = recode(exp_already_vax,
+                              "1" = "Yes",
+                              "0" = "No"),
+         exp_flu_vax = recode(exp_flu_vax,
+                              "1" = "Yes",
+                              "0" = "No"),
+         exp_profession = recode(exp_profession,
+                              "1" = "Nursing",
+                              "0" = "Medical"),
+         exp_gender = recode(exp_gender,
+                              "0" = "Male",
+                              "1" = "Female",
+                              "3" = "Non-binary",
+                              "4" = "Prefer not to say"),
+         exp_race = recode(exp_race,
+                              "2" = "Asian",
+                              "1" = "American Indian / Alaskan Native",
+                              "3" = "Black / African American",
+                              "4" = "Native Hawaiian / Other Pacific Islander",
+                              "5" = "White"),
+          exp_ethnicity = recode(exp_ethnicity,
+                              "1" = "Hispanic / Latino",
+                              "2" = "Non-Hispanic/Non-Latino"),
+         exp_age_bin = recode(exp_age_bin, 
+                              case_when(
+                                exp_age_bin <20 ~ "<20",
+                                exp_age_bin >= 20 & exp_age_bin <= 25 ~ "21-25",
+                                exp_age_bin >= 26 & exp_age_bin <= 30 ~ "26-30",
+                                exp_age_bin > 30 ~ ">30"
+                              ))
+  )
+                              
+
+covid_survey_longer <- covid_survey %>% 
+  #this turns the explanatory columns into one column with each option as a variable (as opposed to a separate column) 
+  pivot_longer(
+    cols = starts_with("exp_"), 
+    names_to = "explanatory", 
+    values_to = "explanatory_value"
+    ) %>% 
+  filter(!is.na(explanatory_value)) %>% 
+  #this does the same thing but with response columns, compiling them into one column called response
+  pivot_longer(
+    cols = starts_with("resp_"), 
+    names_to = "response", 
+    values_to = "response_value"
+)
+covid_survey_longer
+
+#calculating mean, 10th percentile and 90th percentile
+covid_survey_summary_stats_by_group <- covid_survey_longer %>%
+  group_by(explanatory, explanatory_value, response) %>%
+  summarize(
+    mean = mean(response_value, na.rm = TRUE),
+    low = quantile(response_value, 0.10, na.rm = TRUE),
+    high = quantile(response_value, 0.90, na.rm = TRUE)
+  )
+covid_survey_summary_stats_by_group
+
+covid_survey_summary_stats_all <- covid_survey_longer %>%
+  group_by(response) %>%
+  summarize(
+    mean = mean(response_value, na.rm = TRUE),
+    low = quantile(response_value, 0.10, na.rm = TRUE),
+    high = quantile(response_value, 0.90, na.rm = TRUE)
+  )
+covid_survey_summary_stats_all
+
+covid_survey_summary_stats <- bind_rows(
+  covid_survey_summary_stats_all,
+  covid_survey_summary_stats_by_group
+)
+covid_survey_summary_stats
+
+```
+
+```{r}
+
+ggplot(data = covid_survey_summary_stats, aes(x = ))
+
+
+```
+
