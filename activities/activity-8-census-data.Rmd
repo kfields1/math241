@@ -35,7 +35,7 @@ In order to directly download data from the Census API, you need a key. You can 
 Type your key in quotes using the `census_api_key()` command
 
 ```{r, eval = F}
-census_api_key("YOUR API KEY GOES HERE", install = TRUE)
+census_api_key("c0e52b585ba085eacc27c70fd3b1995fd52c2dd0", install = TRUE, overwrite=TRUE)
 ```
 
 
@@ -178,7 +178,7 @@ mutlnomah_tracts <- get_acs(geography = "tract",
 Look at the data to see if it contains only Multnomah county tracts.
 
 ```{r}
-
+view(mutlnomah_tracts)
 ```
 
 
@@ -186,6 +186,55 @@ Look at the data to see if it contains only Multnomah county tracts.
 
 Let's look at housing values `B25077_001`. Choose your county of birth (or any county you like) and all its adjacent counties. Create a visualization of the distribution of the median home values by census tract, for each county, using the most recent ACS data available (probably 2022).
 
+```{r}
+#getting census data
+ca <- get_acs(geography = "county", 
+              year = 2021,
+              state = "CA",
+              variables = c(total_pop = "B03002_001", 
+                            white_pop = "B03002_003", black_pop = "B03002_004", 
+                            asian_pop = "B03002_006", hisp_pop = "B03002_012", 
+                            housing = "B25077_001"),
+              survey = "acs5",
+              output = "wide")
+
+#getting spatial data
+ca_sf <- counties(state = "CA", cb = TRUE)
+
+#merging census data and spatial data
+ca_county <- left_join(ca, ca_sf, by = c("GEOID" = "GEOID"))
+
+#visualizing median house values across california
+ca_county %>%
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = housingE)) +
+  scale_fill_viridis_c() +
+  labs(fill = "Median Home Values") +
+  theme_void()
+
+#data wrangling - just bay area
+bayarea <- ca_county %>% 
+  filter(NAME.x == "Alameda County, California" | 
+           NAME.x == "Napa County, California" |
+           NAME.x == "Santa Clara County, California"|
+           NAME.x == "Contra Costa County, California"|
+           NAME.x == "San Francisco County, California"|
+           NAME.x == "Solano County, California"|
+           NAME.x == "Marin County, California"|
+           NAME.x == "San Mateo County, California"|
+           NAME.x == "Sonoma County, California")
+
+#Bay Area: Median House Value Visualization
+bayarea %>%
+  st_as_sf() %>%
+  ggplot() +
+  geom_sf(aes(fill = housingE)) +
+  scale_fill_viridis_c() +
+  labs(fill = "Median Home Values") +
+  theme_void()
+
+```
 
 
 ## Next steps
