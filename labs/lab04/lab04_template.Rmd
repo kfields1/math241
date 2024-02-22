@@ -145,14 +145,18 @@ have recieved about
 the vaccines",
                               "resp_will_recommend" = "I will recommend 
 the vaccine to 
-family, friends, 
-and community members"
+family, friends, and 
+community members"
              )),
              scales = "free_x", switch = "x") +  
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        strip.background = element_rect(color = "black", fill = "gray90"),
+        strip.text.x.top = element_text(size = 12, hjust = 0.5, face = "bold")
+        ) 
 
-  
+        
+```
   
   
    scale_y_discrete(labels = c("exp_race" = "Race", 
