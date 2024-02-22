@@ -14,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```{r}
 # Put all necessary libraries here
 library(tidyverse)
+install.packages("ggrepel")
+library(ggrepel)
 ```
 
 ### Problem 1: COVID survey - interpretation
@@ -117,27 +119,48 @@ covid_survey_summary_stats
 
 ```{r}
 
+
 ggplot(data = covid_survey_summary_stats, aes(x=mean, y = explanatory, xmin= low, xmax = high, color = explanatory_value)) +
   geom_pointrange(position = position_dodge(width = 1)) +
   geom_text(aes(label = explanatory_value), 
-            size = 3, color = "black") +
+            size = 3, color = "black", position=position_jitter(width=1,height=1)) +
 facet_grid(.~response, 
-             labeller = labeller(response = c("resp_concern_safety" = "I am concerned about the safety and side effects of the vaccine", 
-                              "resp_confidence_science" = "I am confident in the scientific vetting process for the new COVID vaccines", 
-                              "resp_feel_safe_at_work" = "Getting the vaccine will make me feel safer at work",
-                              "resp_safety" = "Based on my understanding, I believe the vaccine is safe",
-                              "resp_trust_info" = "I trust the information that I have recieved about the vaccines",
-                              "resp_will_recommend" = "I will recommend the vaccine to family, friends, and community members"
+             labeller = labeller(response = c("resp_concern_safety" = "I am concerned 
+about the safety 
+and side effects of 
+the vaccine", 
+                              "resp_confidence_science" = "I am confident in 
+the scientific 
+vetting process for 
+the new COVID 
+vaccines", 
+                              "resp_feel_safe_at_work" = "Getting the vaccine 
+will make me feel 
+safer at work",
+                              "resp_safety" = "Based on my 
+understanding, I 
+believe the vaccine 
+is safe",
+                              "resp_trust_info" = "I trust the 
+information that I 
+have recieved about 
+the vaccines",
+                              "resp_will_recommend" = "I will recommend 
+the vaccine to 
+family, friends, 
+and community members"
              )),
              scales = "free_x", switch = "x") +  
   theme_minimal() +
   scale_y_discrete(labels = c("exp_race" = "Race", 
                               "exp_profession" = "Profession", 
                               "exp_gender" = "Gender",
-                              "NA" = "All",
-                              "exp_flu_vax" = "Had flu vaccine this year",
+                              "exp_flu_vax" = "Had flu 
+vaccine this 
+year",
                               "exp_ethnicity" = "Ethnicity",
-                              "exp_already_vax" = "Had COVID vaccine"),
+                              "exp_already_vax" = "Had COVID 
+vaccine"),
                    position = "right") +
   labs(y = NULL) +
   theme(legend.position = "none")
