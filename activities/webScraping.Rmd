@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```{r}
 #Load web scraping library
 library(rvest)
+library(tidyverse)
+
 ```
 
 # Grab Tables from the Web
@@ -70,3 +72,50 @@ college_access_table2 <- url %>%
 ## Create a visualization
 
 Choose 3 variables and create a heuristic visualization using this dataset.
+
+```{r}
+
+#making variable names useable
+collacc.clean <- college_access_table %>% 
+  rename("freshman.class" = "Freshman class",
+         "pell.grad.share" = "Pell grad share",
+         "netprice.mid" = "Net price, mid. income",
+         "college.access.index" = "College Access Index",
+         "endowment" = "Endowment per student") 
+
+
+collacc.clean.fix <- collacc.clean 
+#removing commas from freshman.class in order to convert to numeric
+collacc.clean.fix$freshman.class <- gsub(',', '', collacc.clean.fix$freshman.class)
+#removing $ and k from netprice.mid in order to convert to numeric
+collacc.clean.fix$netprice.mid <- gsub('\\$|k', '', collacc.clean.fix$netprice.mid)
+#converting to numeric
+collacc.clean.fix <- collacc.clean.fix %>% 
+  mutate(freshman.class = as.numeric(freshman.class),
+         netprice.mid = as.numeric(netprice.mid) * 1000)
+
+# Function to convert strings like "$11.1k" to numeric
+convert_to_numeric <- function(x) {
+  # Remove '$'
+  x <- gsub('\\$', '', x)
+  # Convert to numeric
+  if (grepl('k', x)) {
+    as.numeric(gsub('k', '', x)) * 1000
+  } else if (grepl('m', x)) {
+    as.numeric(gsub('m', '', x)) * 1000000
+  } else {
+    as.numeric(x)
+  }
+}
+
+# Apply the function to the endowment column
+collacc.clean.fix$endowment <- sapply(collacc.clean.fix$endowment, convert_to_numeric)
+
+
+
+
+ggplot(data = collacc.clean.fix, aes(x = freshman.class, y = netprice.mid)) + 
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
