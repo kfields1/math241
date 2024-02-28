@@ -23,7 +23,31 @@ The goal of this exercise is to use our skills to get data from online, transfor
 (Hint: use the `readr::read_csv` function to directly read the csv from the url pointing to the data)
 ```{r, eval = F}
 
-biketown_data <- bind_rows(bk_jan, bk_jul, bk_nov) %>%
+bk_jan <- readr::read_csv("https://s3.amazonaws.com/biketown-tripdata-public/2018_01.csv")
+bk_jul <- readr::read_csv("https://s3.amazonaws.com/biketown-tripdata-public/2018_07.csv")
+bk_nov <- readr::read_csv("https://s3.amazonaws.com/biketown-tripdata-public/2018_11.csv")
+
+library(lubridate)
+bk_jan_cl <- bk_jan %>%
+  mutate(StartDate = mdy(StartDate),
+         Duration = as.duration(Duration),
+         EndDate = mdy(EndDate)) %>%
+  mutate(StartDateTime = ymd_hms(paste(StartDate, StartTime, sep = " ")),
+         EndDateTime = ymd_hms(paste(EndDate, EndTime, sep = " ")))
+bk_jul_cl <- bk_jul %>%
+  mutate(StartDate = mdy(StartDate),
+         Duration = as.duration(Duration),
+         EndDate = mdy(EndDate)) %>%
+  mutate(StartDateTime = ymd_hms(paste(StartDate, StartTime, sep = " ")),
+         EndDateTime = ymd_hms(paste(EndDate, EndTime, sep = " ")))
+bk_nov_cl <- bk_nov %>%
+  mutate(StartDate = mdy(StartDate),
+         Duration = as.duration(Duration),
+         EndDate = mdy(EndDate)) %>%
+  mutate(StartDateTime = ymd_hms(paste(StartDate, StartTime, sep = " ")),
+         EndDateTime = ymd_hms(paste(EndDate, EndTime, sep = " ")))
+
+biketown_data <- bind_rows(bk_jan_cl, bk_jul_cl, bk_nov_cl) %>%
   select(StartDate, StartTime, EndDate, EndTime, Distance_Miles,
          BikeID)
 ```
@@ -39,7 +63,7 @@ biketown_dt <- biketown_data %>%
   filter(Distance_Miles < 10) # filter for outlying trips!
 
 biketown_dt %>%
-  ggplot(aes(y =..., x = Distance_Miles, fill = ...)) +
+  ggplot(aes(y =wday(StartDate), x = Distance_Miles, fill = wday(StartDate))) +
   geom_density_ridges(scale = 4) +
   facet_wrap(~ ..., nrow = 3) +
   labs(x = 'Distance (Miles)', y = 'Day of the week') +
