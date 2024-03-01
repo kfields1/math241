@@ -33,7 +33,7 @@ library(RColorBrewer)
 
 ```{r, eval = F}
 # Load in your Census API key (replace YOUR_API_KEY with your actual key)
-census_api_key("YOUR_API_KEY", install = TRUE)
+census_api_key("c0e52b585ba085eacc27c70fd3b1995fd52c2dd0", install = TRUE, overwrite = TRUE)
 ```
 
 ## Retrieving Spatial Data for Multnomah County, OR
@@ -368,4 +368,55 @@ Make sure to bring in spatial data by using geometry = TRUE. Also make sure to c
 
 6. Based on a visual comparison of the maps you created in (3) and (5), summarize in your own words the association between racial/ethnic composition and your variable of interest.
 
+
+```{r}
+#bringing in data
+ca_tracts <- get_acs(geography = "tract",
+                     year = 2022,
+                     variables = c(medincome = "B19013_001",
+                                   pubtransport = "DP03_0021P",
+                                   fb = "B05012_003",
+                                   totp = "B05012_001",
+                                   total_pop = "B03002_001", 
+                                   white_pop = "B03002_003", 
+                                   black_pop = "B03002_004", 
+                                   asian_pop = "B03002_006", 
+                                   hisp_pop = "B03002_012"),
+                     state = "CA",
+                     county = "Santa Barbara County",
+                     survey = "acs5",
+                     output = "wide",
+                     geometry = TRUE)
+
+#data wrangling
+ca_tracts <- ca_tracts %>%
+  select(-ends_with("M")) %>%
+  rename(medincome = medincomeE, fb = fbE, totp = totpE) %>%
+  mutate(pfb = 100 * (fb / totp),
+         p_black = 100 * (black_popE / totp),
+         p_white = 100 * (white_popE / totp),
+         p_asian = 100 * (asian_popE / totp),
+         p_hispanic = 100 * (hisp_popE / totp)
+         ) #%>%
+  # mutate(medincome=ifelse(!is.na(medincome), medincome, 0))
+
+tm_shape(ca_tracts %>%
+           filter(GEOID != '06083990000')) +
+  tm_polygons(col = "medincome", style = "quantile", palette = "BuGn", title = "Median Household Income") +
+  tm_layout(main.title = "Median Household Income in Santa Barbara County, 2018-2022",
+            main.title.position = "center",
+            legend.outside = TRUE)
+
+```
+
+```{r}
+ca_tracts %>% 
+  mutate(prop_white = white_popE/total_popE *100) %>% 
+  st_as_sf() %>% 
+  ggplot() +
+    geom_sf(aes(fill = prop_white)) +
+    scale_fill_viridis_c() +
+    labs(fill = "Percentage of Population that is White") +
+    theme_void()
+```
 
