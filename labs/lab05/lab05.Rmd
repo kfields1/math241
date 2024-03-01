@@ -50,7 +50,7 @@ library(rnoaa)
 a. First things first, go to [this NOAA website](https://www.ncdc.noaa.gov/cdo-web/token) to get a key emailed to you.  Then insert your key below:
 
 ```{r, eval = FALSE}
-options(noaakey = "INSERT KEY")
+options(noaakey = "qYZGgJSYZXCWuRPaBZSPSWQEUGZqlgbl")
 ```
 
 
@@ -64,6 +64,7 @@ stations <- ncdc_stations(datasetid = "GHCND",
 mult_stations <- stations$data
 ```
 
+There are 25 stations in Multnomah County.
 
 
 c. January was not so rainy this year, was it?  Let's grab the precipitation data for site `GHCND:US1ORMT0006` for this past January.
@@ -72,14 +73,27 @@ c. January was not so rainy this year, was it?  Let's grab the precipitation dat
 # First fill-in and run to following to determine the
 # datatypeid
 ncdc_datatypes(datasetid = "GHCND",
-               stationid = "")
+               stationid = "GHCND:US1ORMT0006")
 
 # Now grab the data using ncdc()
-precip_se_pdx <- ncdc()
+precip_se_pdx <- ncdc(datasetid = "GHCND",
+                      stationid = "GHCND:US1ORMT0006",
+                      startdate = "2024-01-01",
+                      enddate = "2024-01-31",
+                      datatypeid = "PRCP")
 ```
 
-d.  What is the class of `precip_se_dpx`?  Grab the data frame nested in `precip_se_dpx` and call it `precip_se_dpx_data`.
+d.  What is the class of `precip_se_ppx`?  Grab the data frame nested in `precip_se_ppx` and call it `precip_se_ppx_data`.
 
+precip_se_dpx is list
+
+```{r}
+
+class(precip_se_pdx)
+
+precip_se_pdx_data <- precip_se_pdx$data
+
+```
 
 
 e. Use `ymd_hms()` in the package `lubridate` to wrangle the date column into the correct format.
