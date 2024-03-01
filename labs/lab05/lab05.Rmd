@@ -49,7 +49,7 @@ library(rnoaa)
 
 a. First things first, go to [this NOAA website](https://www.ncdc.noaa.gov/cdo-web/token) to get a key emailed to you.  Then insert your key below:
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 options(noaakey = "qYZGgJSYZXCWuRPaBZSPSWQEUGZqlgbl")
 ```
 
@@ -57,7 +57,7 @@ options(noaakey = "qYZGgJSYZXCWuRPaBZSPSWQEUGZqlgbl")
 
 b. From the National Climate Data Center (NCDC) data, use the following code to grab the stations in Multnomah County. How many stations are in Multnomah County?
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 stations <- ncdc_stations(datasetid = "GHCND", 
                           locationid = "FIPS:41051")
 
@@ -69,7 +69,7 @@ There are 25 stations in Multnomah County.
 
 c. January was not so rainy this year, was it?  Let's grab the precipitation data for site `GHCND:US1ORMT0006` for this past January.
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 # First fill-in and run to following to determine the
 # datatypeid
 ncdc_datatypes(datasetid = "GHCND",
@@ -87,7 +87,7 @@ d.  What is the class of `precip_se_ppx`?  Grab the data frame nested in `precip
 
 precip_se_dpx is list
 
-```{r}
+```{r, eval = TRUE}
 
 class(precip_se_pdx)
 
@@ -98,13 +98,53 @@ precip_se_pdx_data <- precip_se_pdx$data
 
 e. Use `ymd_hms()` in the package `lubridate` to wrangle the date column into the correct format.
 
+```{r, eval = TRUE}
+library(lubridate)
+
+precip_se_pdx_data$date <- ymd_hms(precip_se_pdx_data$date)
+
+head(precip_se_pdx_data)
+```
+
 
 
 f. Plot the precipitation data for this site in Portland over time.  Rumor has it that we had only one day where it didn't rain.  Is that true?
 
+```{r, eval = TRUE}
+ggplot(precip_se_pdx_data, aes(x = date, y = value)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(x = "Date", y = "Precipitation (mm)", title = "Daily Precipitation in Portland") +
+  theme_minimal()
+
+num_days_without_rain <- sum(precip_se_pdx_data$value == 0)
+num_days_without_rain
+```
+
+
+That is not true! We had 5 days without rain.
 
 g. (Bonus) Adapt the code to create a visualization that compares the precipitation data for January over the the last four years.  Do you notice any trend over time?
 
+```{r}
+#precip_se_pdx_years <- ncdc(datasetid = "GHCND",
+#                      stationid = "GHCND:US1ORMT0006",
+#                      startdate = "2020-01-01",
+#                      enddate = "2024-01-31",
+#                      datatypeid = "PRCP")
+#precip_se_pdx_years_data <- precip_se_pdx_years$data
+#precip_se_pdx_years_data$date <- ymd_hms(precip_se_pdx_years_data$date)
+#precip_januarys <- precip_se_pdx_years_data %>%
+#  filter(month(date) == 1)
+
+#library(ggplot2)
+#ggplot(precip_januarys, aes(x = date, y = value, color = as.factor(year(date)))) +
+#  geom_line() +
+#  labs(x = "Date", y = "Precipitation (mm)", title = "January Precipitation in Portland (Last 4 Years)") +
+#  theme_minimal() +
+#  scale_color_manual(values = c("#B370F2", "#70D0F2", "#F2C470", "#F270C4"))
+
+#ik this doesn't work but i feel like it should ? </3
+```
 
 
 
@@ -122,7 +162,33 @@ Here are some potential API wrapper packages.  Feel free to use one not included
 * [`rfishbase`](https://github.com/ropensci/rfishbase): For the fish lovers
 * [`darksky`](https://github.com/hrbrmstr/darksky): For global historical and current weather conditions
 
+```{r, eval = TRUE}
+#install.packages("rfishbase")
+library(rfishbase)
+library(dplyr)
+library(ggplot2)
 
+fish_df <- species()
+
+filtered_fish_df <- fish_df %>%
+  filter(!is.na(Length))
+
+x_range <- c(0, 200)
+
+ggplot(filtered_fish_df, aes(x = LongevityWild, y = LongevityCaptive)) +
+  geom_point() +
+  labs(x = "Longevity in the Wild", 
+       y = "Longevity in Captivity", 
+       title = "Longevity in the Wild vs Captivity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme_minimal() +
+  coord_cartesian(xlim = x_range,
+                  ylim = x_range)
+
+
+```
+
+Fish tend to live longer in the wild than in captivity. Additional analysis could reveal what other factors contribute to this observation (if it varies by genus, habitat type, etc)
 
 ## Problem 3: Scraping Reedie Data
 
@@ -130,24 +196,58 @@ Let's see what lovely data we can pull from Reed's own website.
 
 a. Go to [https://www.reed.edu/ir/success.html](https://www.reed.edu/ir/success.html) and scrape the two tables.
 
+```{r, eval = TRUE}
+url <- "https://www.reed.edu/ir/success.html"
+
+webpage <- read_html(url)
+
+tables <- html_table(webpage)
+```
 
 
 
 b. Grab and print out the table that is entitled "GRADUATE SCHOOLS MOST FREQUENTLY ATTENDED BY REED ALUMNI".  Why is this data frame not in a tidy format?
 
+```{r, eval = TRUE}
+print(tables[[2]])
+
+```
 
 
 c. Wrangle the data into a tidy format. Glimpse the resulting data frame.
 
+```{r, eval = TRUE}
+grad_schools <- tables[[2]]
+
+grad_schools_tidy <- grad_schools %>%
+  pivot_longer(cols = c(MBAs, JDs, PhDs, MDs), names_to = "degree_type", values_to = "college") 
+
+glimpse(grad_schools_tidy)
+
+```
 
 
 d. Now grab the "OCCUPATIONAL DISTRIBUTION OF ALUMNI" table and turn it into an appropriate graph.  What conclusions can we draw from the graph?
 
-```{r}
+```{r, eval = TRUE}
 # Hint: Use `parse_number()` within `mutate()` to fix one of the columns
+library(dplyr)
+
+occ_data <- tables[[1]]
+
+occ_data <- occ_data %>%
+  mutate(perc_occ = parse_number(X2))
+
+names(occ_data)[1] <- "occ"
+
+
+ggplot(occ_data, aes(x = occ, y = perc_occ, fill = occ)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Occupation", y = "Percentage", title = "Occupational Distribution of Alumni") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme(legend.position = "none")
 ```
-
-
 
 
 
@@ -177,5 +277,44 @@ filter(row_number() ...)
 
 * Make sure each column has the correct class.    
 
+```{r, eval = TRUE}
+url2 <- "https://www.reed.edu/ir/gradrateshist.html"
+webpage2 <- read_html(url2)
+tables2 <- html_table(webpage2)
+grad_rate <- tables2[[1]]
+grad_rate <- grad_rate[-1, ]
+grad_rate <- grad_rate[-1, ]
+grad_rate <- grad_rate[-1, ]
+
+colnames(grad_rate) <- c("startyr", "numCohort", "four_yrs", "five_yrs", "six_yrs")
+
+grad_rate <- grad_rate %>%
+  mutate(four_yrs_pc = parse_number(four_yrs),
+         five_yrs_pc = parse_number(five_yrs),
+         six_yrs_pc = parse_number(six_yrs))
+grad_rate$startyr <- as.numeric(grad_rate$startyr)
+grad_rate$numCohort <- as.numeric(grad_rate$numCohort)
+grad_rate_piv <- grad_rate %>%
+  pivot_longer(cols = c(four_yrs_pc, five_yrs_pc, six_yrs_pc),
+               names_to = "grad_yrs",
+               values_to = "grad_rate") 
+grad_rate_piv <- grad_rate_piv %>% 
+  mutate(grad_yrs = case_when(
+    grad_yrs == "four_yrs_pc" ~ 4,
+    grad_yrs == "five_yrs_pc" ~ 5,
+    grad_yrs == "six_yrs_pc" ~ 6)) 
+grad_rate_piv <- grad_rate_piv %>% 
+  select(-c("four_yrs", "five_yrs", "six_yrs"))
+
+```
+
 
 f. Create a graph comparing the graduation rates over time and draw some conclusions.
+
+```{r, eval = TRUE}
+ggplot(grad_rate_piv, aes(x = startyr, y = grad_rate, color = factor(grad_yrs))) +
+  geom_line() +
+  labs(x = "Year", y = "Graduation Rate", title = "Graduation Rate Over Time") +
+  scale_color_manual(values = c("#53a677", "#f0cb67", "#f067e9"), name = "Years to Graduation")
+```
+As the number of years till graduation increases, so does graduation rate. Overall, the graduation rate has been increasing over time. I would be interested to look into what happened in 1990 that dropped those rates.
