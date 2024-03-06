@@ -1,0 +1,68 @@
+```{r}
+pm25_portland_2017 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/pm25/pm25 portland 2017.csv")
+pm25_portland_2018 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/pm25/pm25 portland 2018.csv")
+pm25_portland_2019 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/pm25/pm25 portland 2019.csv")
+pm25_portland_2020 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/pm25/pm25 portland 2020.csv")
+pm25_portland_2021 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/pm25/pm25 portland 2021.csv")
+pm25_portland_2022 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/pm25/pm25 portland 2022.csv")
+
+pm25_portland <- bind_rows(pm25_portland_2017, pm25_portland_2018, pm25_portland_2019, pm25_portland_2020, pm25_portland_2021, pm25_portland_2022)
+
+write.csv(pm25_portland, "pm25_portland.csv", row.names = FALSE)
+
+
+so2_portland_2017 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/so2/so2 portland 2017.csv")
+so2_portland_2018 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/so2/so2 portland 2018.csv")
+so2_portland_2019 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/so2/so2 portland 2019.csv")
+so2_portland_2020 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/so2/so2 portland 2020.csv")
+so2_portland_2021 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/so2/so2 portland 2021.csv")
+so2_portland_2022 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/so2/so2 portland 2022.csv")
+
+so2_portland <- bind_rows(so2_portland_2017, so2_portland_2018, so2_portland_2019, so2_portland_2020, so2_portland_2021, so2_portland_2022)
+
+write.csv(so2_portland, "so2_portland.csv", row.names = FALSE)
+
+
+co_portland_2017 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/co/co portland 2017.csv")
+co_portland_2018 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/co/co portland 2018.csv")
+co_portland_2019 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/co/co portland 2019.csv")
+co_portland_2020 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/co/co portland 2020.csv")
+co_portland_2021 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/co/co portland 2021.csv")
+co_portland_2022 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/co/co portland 2022.csv")
+
+co_portland <- bind_rows(co_portland_2017, co_portland_2018, co_portland_2019, co_portland_2020, co_portland_2021, co_portland_2022)
+
+write.csv(co_portland, "co_portland.csv", row.names = FALSE)
+
+
+no2_portland_2017 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/no2/no2 portland 2017.csv")
+no2_portland_2018 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/no2/no2 portland 2018.csv")
+no2_portland_2019 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/no2/no2 portland 2019.csv")
+no2_portland_2020 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/no2/no2 portland 2020.csv")
+no2_portland_2021 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/no2/no2 portland 2021.csv")
+no2_portland_2022 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/no2/no2 portland 2022.csv")
+
+no2_portland <- bind_rows(no2_portland_2017, no2_portland_2018, no2_portland_2019, no2_portland_2020, no2_portland_2021, no2_portland_2022)
+
+write.csv(no2_portland, "no2_portland.csv", row.names = FALSE)
+
+ozone_portland_2017 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/ozone/ozone portland 2017.csv")
+ozone_portland_2018 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/ozone/ozone portland 2018.csv")
+ozone_portland_2019 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/ozone/ozone portland 2019.csv")
+ozone_portland_2020 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/ozone/ozone portland 2020.csv")
+ozone_portland_2021 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/ozone/ozone portland 2021.csv")
+ozone_portland_2022 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/ozone/ozone portland 2022.csv")
+
+ozone_portland <- bind_rows(ozone_portland_2017, ozone_portland_2018, ozone_portland_2019, ozone_portland_2020, ozone_portland_2021, ozone_portland_2022)
+
+
+write.csv(ozone_portland, "ozone_portland.csv", row.names = FALSE)
+
+
+pollutants_pdx <- bind_rows(ozone_portland, no2_portland, co_portland, so2_portland, pm25_portland)
+
+write.csv(pollutants_pdx, "pollutants_pdx.csv", row.names = FALSE)
+
+
+```
+

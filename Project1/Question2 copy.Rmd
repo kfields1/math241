@@ -1,0 +1,185 @@
+
+
+
+```{r include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(readr)
+library(reshape2)
+```
+
+
+```{r include=FALSE}
+#Julian's Code
+#Just run this code :^) with your own file path
+
+avgAll <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/avgAll.csv")
+avgAll2020 <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/avgAll2020.csv")
+
+avgAll$year <- as.character(avgAll$year)
+avgAll2020$year <- as.character(avgAll2020$year)
+
+```
+
+
+```{r}
+#data from csvs (will need to change location stuff)
+fires_full <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/fires_full.csv")
+pollutants_pdx <- read_csv("~/Rstudio/DataScience/proj1.math241/project01-ojkp/air data/pollutants_pdx.csv", 
+    col_types = cols(Source = col_skip(), 
+        `Site ID` = col_skip(), POC = col_skip(), 
+        `Site Name` = col_skip(), DAILY_OBS_COUNT = col_skip(), 
+        PERCENT_COMPLETE = col_skip(), AQS_PARAMETER_CODE = col_skip(), 
+        CBSA_CODE = col_skip(), CBSA_NAME = col_skip(), 
+        STATE_CODE = col_skip(), STATE = col_skip(), 
+        COUNTY_CODE = col_skip(), COUNTY = col_skip(), 
+        SITE_LATITUDE = col_skip(), SITE_LONGITUDE = col_skip()))
+```
+
+
+```{r}
+#pollutant data stuff/wrangling
+pollutants_pdx <- pollutants_pdx %>%
+  rename(NO2_reading = "Daily Max 1-hour NO2 Concentration",
+         Ozone_reading = "Daily Max 8-hour Ozone Concentration",
+         CO_reading = "Daily Max 8-hour CO Concentration",
+         SO2_reading = "Daily Max 1-hour SO2 Concentration",
+         PM2.5_reading = "Daily Mean PM2.5 Concentration",
+         )
+
+pollutants_pdx_melt <- pollutants_pdx %>%
+  pivot_longer(cols = c(NO2_reading, CO_reading, SO2_reading, PM2.5_reading, Ozone_reading),
+               names_to = "variable",
+               values_to = "reading") %>%
+  filter(!is.na(reading))
+
+pollutants_pdx_melt$Date <- mdy(pollutants_pdx_melt$Date)
+
+pollutants_pdx_melt <- pollutants_pdx_melt %>%
+  mutate(year = year(Date))
+
+```
+
+
+```{r}
+#graphing fires
+#considering changing severity of fire seasons over years
+ggplot(data = fires_full, aes(x=ReportDate, y = tot_ProAcres)) +
+  geom_line()
+
+fires_full <- fires_full %>%
+  mutate(year = year(ReportDate))
+
+ggplot(data = fires_full, aes(x=ReportDate, y = tot_ProAcres)) +
+  geom_line() +
+  facet_wrap(~year, scales = "free_x") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=5))
+
+```
+
+
+```{r}
+# In the proposal we said we'd plot observations for the first, 15th, and last day of each month across one year, and observe whether there is a stark increase in pollutant concentrations during the wildfire season (July-September) and have multiple lines to see which pollutants in particular increase. 
+#instead of separate lines, separate graphs for unit/interpretability reasons
+
+#data for first 15th and last day of month
+pollutants_FML <- pollutants_pdx_melt %>%
+  mutate(day = day(Date)) %>%
+  filter(day == 1 | day == 15 | day == max(day)) %>%
+  select(-day)  
+
+#2017, considering trends in just one year, can be altered for whichever year
+ggplot(pollutants_FML %>% 
+         filter(year == 2017), aes(x = Date, y = reading, color = variable)) +
+  geom_line() +
+  facet_wrap(~ variable + year, scales = "free") +
+  labs(title = "Observations for First, 15th, and Last Day of Each Month",
+       x = "Date", y = "Reading") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=5))
+
+
+#on one super mega huge giant ggplot to see how this holds up across years
+ggplot(pollutants_FML, aes(x = Date, y = reading, color = variable)) +
+  geom_line() +
+  facet_wrap(~ variable + year, scales = "free") +
+  labs(title = "Observations for First, 15th, and Last Day of Each Month",
+       x = "Date", y = "Reading") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=5))
+```
+
+
+
+
+
+```{r}
+#okay... 
+#this is a visualization with all the pollutants over all the years compared to wildfires. surely there's something to be gained from this. maybe not tho.
+
+plots <- lapply(unique(pollutants_pdx_melt$variable), function(var) {
+  ggplot(data = pollutants_pdx_melt[pollutants_pdx_melt$variable == var, ], aes(x = Date, y = reading)) +
+    geom_line() +
+    labs(title = paste("Reading for", var),
+         x = "Date", y = "Reading")
+})
+
+fire_plot <- ggplot(data = fires_full, aes(x = ReportDate, y = tot_ProAcres)) +
+  geom_line(color = "red") +
+  labs(title = "Total Protected Acres Burnt",
+       x = "Date", y = "Total Protected Acres")
+
+library(gridExtra)
+grid.arrange(arrangeGrob(grobs = plots, ncol = 1), fire_plot, heights = c(4, 1))
+
+
+#this is that same nonsense but just for 2020:
+pollutants_2020 <- pollutants_pdx_melt %>%
+  filter(year(Date) == 2020)
+
+plots <- lapply(unique(pollutants_2020$variable), function(var) {
+  ggplot(data = pollutants_2020[pollutants_2020$variable == var, ], aes(x = Date, y = reading)) +
+    geom_line() +
+    labs(title = paste("Reading for", var, "in 2020"),
+         x = "Date", y = "Reading")
+})
+
+fire_plot <- ggplot(data = fires_full[fires_full$year == 2020, ], aes(x = ReportDate, y = tot_ProAcres)) +
+  geom_line(color = "red") +
+  labs(title = "Total Protected Acres Burnt in 2020",
+       x = "Date", y = "Total Protected Acres")
+
+grid.arrange(arrangeGrob(grobs = plots, ncol = 1), fire_plot, heights = c(4, 1))
+```
+
+```{r}
+#summary statistics
+#correlation in 2020 between protected area burnt and each pollutant readings
+
+#aggregating data + merging
+pollutant_small20 <- pollutants_2020 %>%
+  group_by(Date, variable) %>%
+  summarise(reading = mean(reading, na.rm = TRUE)) %>%
+  ungroup()
+
+fires_small20 <- fires_full[fires_full$year == 2020, ] %>%
+  group_by(ReportDate) %>%
+  summarise(tot_ProAcres = sum(tot_ProAcres, na.rm = TRUE)) %>%
+  ungroup()
+
+merged_data <- merge(pollutant_small20, fires_small20, by.x = "Date", by.y = "ReportDate", all = TRUE)
+
+
+# Calculate correlation coefficients for each pollutant variable
+correlations <- lapply(unique(merged_data$variable), function(var) {
+  pollutant_data <- merged_data %>%
+    filter(variable == var)
+  correlation <- cor.test(pollutant_data$reading, pollutant_data$tot_ProAcres)$estimate
+  data.frame(Pollutant = var, Correlation = correlation)
+})
+
+correlations_df <- do.call(rbind, correlations)
+
+print(correlations_df)
+
+```
+
