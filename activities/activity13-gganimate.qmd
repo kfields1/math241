@@ -40,7 +40,7 @@ Freedom House has analyzed challenges to freedom and advocated for greater polit
 #| warning: false
 #| out-width: "80%"
 
-freedom <- read_csv(here::here("freedom.csv"), na = "-")
+freedom <- read_csv("~/Rstudio/DataScience/math241repo/activities/freedom.csv", na = "-")
 
 freedom_ranked <- freedom %>%
   select(country, contains("cl_")) %>%
@@ -59,15 +59,29 @@ freedom_ranked <- freedom %>%
 
 # Your first interactive visualization!
 
--   **Demo:**: create a simple static line plots of your country of choice civl liberty score over time
+-   **Demo:**: create a simple static line plots of your country of choice civil liberty score over time
 
 ```{r}
 #| label: simple-line-plot
 #| eval: false
 
 freedom_ranked %>%
-  filter() %>% 
-  ggplot()
+  filter(country == "Australia") %>% 
+  ggplot(
+    aes(
+      x = year, 
+      y = civil_liberty,
+      color = country
+    )
+  ) +
+  geom_line(linewidth = 2) +
+  labs(
+    x = "Year", 
+    y = "Civil Liberty Score",
+    title = "Australia's Civil Liberty Score over Time"
+  ) +
+    transition_reveal(year)
+
 
 ```
 
