@@ -131,7 +131,8 @@ freedom_ranked <- freedom %>%
 #| eval: false
 
 # add code here
-
+ggplot(data = freedom_to_plot, aes(x = Park)) + 
+  geom_bar() +
 # hint: to label each bar with country name, you can use 
 
 geom_text(
