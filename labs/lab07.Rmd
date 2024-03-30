@@ -19,7 +19,8 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(tidytext)
 library(dplyr)
-
+library(ggplot2)
+library(wordcloud)
 # Ensure the textdata package is installed
 if (!requireNamespace("textdata", quietly = TRUE)) {
   install.packages("textdata")
@@ -210,12 +211,6 @@ top_wild
 
 
 c. Create a bar graph and a word cloud of the frequencies of the 20 most common words.
-```{r}
-library(ggplot2)
-install.packages("wordcloud")
-library(wordcloud)
-```
-
 ```{r}
 ggplot(top_wild, aes(x = reorder(word, n), 
                      y = n,
